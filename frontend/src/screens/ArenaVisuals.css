@@ -1,0 +1,448 @@
+/* Arena-only visual layer. Collision positions and sizes come from the server. */
+.game-board.live-game-board {
+  aspect-ratio: 16 / 9;
+  min-height: 0;
+  touch-action: none;
+  border-color: var(--arena-wall-highlight);
+  background-color: var(--arena-ground);
+  background-image: none !important;
+  image-rendering: auto;
+  isolation: isolate;
+}
+
+/* Each background uses non-repeating highlights: no tile grid or visible seams. */
+.game-board.live-game-board[data-theme="grasslands"] {
+  background-image:
+    radial-gradient(circle at 27% 46%, #fff3c4c0 0 1.2px, transparent 2px),
+    radial-gradient(circle at 26.4% 45.4%, #d8c875a0 0 1px, transparent 1.8px),
+    radial-gradient(circle at 67% 32%, #fff1b9b8 0 1.2px, transparent 2px),
+    radial-gradient(circle at 66.4% 31.4%, #d8c87596 0 1px, transparent 1.8px),
+    radial-gradient(ellipse 18% 12% at 17% 82%, #183b2b45, transparent 100%),
+    radial-gradient(ellipse 22% 14% at 73% 48%, #71924b35, transparent 100%),
+    radial-gradient(ellipse 16% 10% at 42% 17%, #a2bf6040, transparent 100%),
+    radial-gradient(ellipse at 43% 58%, #bdb99b66 0 2px, #4c4a3e40 3px, transparent 4px),
+    radial-gradient(ellipse at 83% 47%, #bdb99b55 0 2px, #4c4a3e38 3px, transparent 4px),
+    radial-gradient(circle at 8% 15%, #dbe88c55 0 1px, transparent 1.8px),
+    radial-gradient(circle at 19% 63%, #a6ca7550 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 53% 78%, #9bc66b50 0 1.4px, transparent 2.4px),
+    radial-gradient(circle at 91% 61%, #a9c87350 0 1.5px, transparent 2.5px),
+    radial-gradient(ellipse 40% 30% at 14% 22%, #aecf6b30, transparent 100%),
+    radial-gradient(ellipse 38% 34% at 81% 74%, #aaa94f27, transparent 100%),
+    radial-gradient(ellipse 50% 48% at 51% 47%, #14342600 48%, #14342638 100%),
+    linear-gradient(145deg, #8cbd6420, transparent 48%, #142b2535) !important;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+.game-board.live-game-board[data-theme="desert"] {
+  background-image:
+    radial-gradient(circle at 12% 26%, #553a2450 0 1.5px, transparent 2.6px),
+    radial-gradient(circle at 31% 74%, #f5d89a66 0 1px, transparent 2px),
+    radial-gradient(circle at 58% 21%, #68452545 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 84% 60%, #f8dd9c55 0 1px, transparent 2px),
+    radial-gradient(ellipse 45% 27% at 18% 19%, #ffe5a340, transparent 100%),
+    radial-gradient(ellipse 52% 42% at 76% 78%, #51341c46, transparent 100%),
+    radial-gradient(ellipse 58% 34% at 40% 58%, #e9bd7538, transparent 100%),
+    linear-gradient(155deg, #f6d28c20, transparent 55%, #3b281b30) !important;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+.game-board.live-game-board[data-theme="neon"] {
+  background-image:
+    radial-gradient(ellipse at 14% 70%, #55e9ec20, transparent 18%),
+    radial-gradient(ellipse at 83% 29%, #d748f020, transparent 20%),
+    linear-gradient(32deg, transparent 0 34%, #46dce30a 34.2% 34.8%, transparent 35%),
+    linear-gradient(148deg, transparent 0 63%, #9a65ee12 63.2% 64%, transparent 64.2%),
+    radial-gradient(ellipse 28% 24% at 50% 48%, #b53fe528, transparent 100%),
+    radial-gradient(ellipse 36% 34% at 12% 18%, #32e9ed22, transparent 100%),
+    radial-gradient(ellipse 40% 35% at 86% 84%, #4367ce2b, transparent 100%),
+    linear-gradient(135deg, #20395b55, transparent 48%, #10182d65) !important;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+.game-board.live-game-board[data-theme="frozen"] {
+  background-image:
+    linear-gradient(28deg, transparent 0 47%, #d7faff14 47.2% 47.5%, transparent 47.8%),
+    linear-gradient(143deg, transparent 0 36%, #b9f5ff16 36.2% 36.5%, transparent 36.8%),
+    linear-gradient(82deg, transparent 0 61%, #eaffff12 61.2% 61.5%, transparent 61.8%),
+    radial-gradient(circle at 11% 65%, #e7fdff45 0 1px, transparent 2px),
+    radial-gradient(circle at 39% 22%, #b3edfa3a 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 73% 39%, #f1ffff45 0 1px, transparent 2px),
+    radial-gradient(circle at 89% 82%, #a9e3f53a 0 1.5px, transparent 2.5px),
+    radial-gradient(ellipse 36% 28% at 28% 18%, #e2fcff38, transparent 100%),
+    radial-gradient(ellipse 42% 35% at 78% 82%, #83c9e32e, transparent 100%),
+    radial-gradient(ellipse 48% 42% at 48% 52%, #a6e9f51c, transparent 100%),
+    linear-gradient(155deg, #ffffff10, transparent 56%, #0a263833) !important;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+/* Obstacles keep a clear silhouette matching their rectangular collision bounds. */
+.arena-obstacle {
+  position: absolute;
+  z-index: 2;
+  box-sizing: border-box;
+  overflow: hidden;
+  border: 2px solid var(--arena-wall-highlight);
+  border-radius: 4px;
+  background-color: var(--arena-wall);
+  box-shadow: inset 0 3px #ffffff28, inset 0 -4px #00000030, 0 5px 8px #06101d70;
+}
+.arena-obstacle::after {
+  position: absolute;
+  inset: 4px;
+  border: 1px solid #ffffff35;
+  border-radius: 2px;
+  content: '';
+  pointer-events: none;
+}
+.live-game-board[data-theme="grasslands"] .kind-tree {
+  background-color: #326444;
+  background-image:
+    radial-gradient(ellipse at 24% 31%, #a3cf6f 0 15%, transparent 17%),
+    radial-gradient(ellipse at 69% 30%, #6fa84f 0 23%, transparent 25%),
+    radial-gradient(ellipse at 49% 70%, #47834d 0 35%, transparent 37%),
+    linear-gradient(90deg, transparent 47%, #553c2c 48% 54%, transparent 55%);
+  box-shadow: inset 0 3px #d8f1aa40, inset 0 -7px #152e2938, 0 5px 9px #081b1680;
+}
+.live-game-board[data-theme="grasslands"] .kind-stone {
+  border-radius: 6px;
+  background-image:
+    radial-gradient(circle at 22% 30%, #f2e9c266 0 2px, transparent 3px),
+    radial-gradient(circle at 74% 65%, #443d344d 0 2px, transparent 3px),
+    linear-gradient(145deg, #ffffff55, transparent 48%, #443b3250);
+  box-shadow: inset 0 3px #ffffff35, inset 0 -5px #222a2540, 0 4px 7px #0c201b88;
+}
+.live-game-board[data-theme="desert"] .kind-pillar,
+.live-game-board[data-theme="desert"] .kind-ruin {
+  border-radius: 2px;
+  background-image:
+    repeating-linear-gradient(0deg, transparent 0 12px, #5a3a2260 13px 14px),
+    linear-gradient(115deg, #ffe6a844, transparent 38%, #54351d55);
+  box-shadow: inset 0 3px #fff0c044, inset 0 -6px #53351e55, 0 5px 8px #25180f70;
+}
+.live-game-board[data-theme="neon"] .kind-gate {
+  background-image: linear-gradient(0deg, #213a70, #506eaa 48%, #243b70);
+  box-shadow: inset 0 0 10px #55e9ecaa, inset 0 0 22px #55e9ec44, 0 0 8px #55e9ec55;
+}
+.live-game-board[data-theme="neon"] .kind-core {
+  background-image: radial-gradient(circle, #f4ffff 0 4%, #55e9ec 7% 13%, #6758d9 18% 35%, #182746 64%);
+  box-shadow: inset 0 0 10px #55e9ec, inset 0 0 20px #a842ef;
+}
+.live-game-board[data-theme="frozen"] .kind-ice-wall {
+  background-image: linear-gradient(135deg, #f4ffff, #9acbdb 32%, #477f9a 56%, #dffaff 82%, #80b2c4);
+  box-shadow: inset 0 3px #ffffffb0, inset 0 -6px #234b5c50, 0 5px 9px #061b2870;
+}
+
+/* Severity colors are shared across maps; perimeter ticks mark the full server
+   rectangle, while a very light tint keeps the entire interior visibly unsafe. */
+.arena-zone {
+  --zone-color: #ff6047;
+  position: absolute;
+  z-index: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  isolation: isolate;
+  background-color: transparent;
+}
+.arena-zone-high { --zone-color: #ff6047; }
+.arena-zone-low { --zone-color: #ffc34f; }
+.arena-zone-high .arena-zone-art {
+  background-image: repeating-linear-gradient(38deg, transparent 0 22px, #ff71451b 22px 24px);
+}
+.arena-zone-low .arena-zone-art {
+  background-image: repeating-linear-gradient(-38deg, transparent 0 23px, #ffc34f20 23px 25px);
+}
+/* Four separated ticks suggest the rectangular edge without joining into a box. */
+.arena-zone::before {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(var(--zone-color), var(--zone-color)) 13% 0 / 6px 3px no-repeat,
+    linear-gradient(var(--zone-color), var(--zone-color)) 73% 100% / 6px 3px no-repeat,
+    linear-gradient(var(--zone-color), var(--zone-color)) 0 61% / 3px 6px no-repeat,
+    linear-gradient(var(--zone-color), var(--zone-color)) 100% 32% / 3px 6px no-repeat;
+  content: '';
+  opacity: .82;
+  pointer-events: none;
+}
+.arena-zone-art { position: absolute; inset: 0; pointer-events: none; }
+.arena-zone-surface, .arena-zone-detail { position: absolute; display: block; }
+.arena-zone-surface {
+  inset: 8%;
+  border-radius: 48% 52% 46% 54% / 54% 44% 56% 46%;
+  background: radial-gradient(ellipse, color-mix(in srgb, var(--zone-color) 35%, transparent), transparent 76%);
+}
+.arena-zone-detail { inset: 8%; }
+.arena-zone-marker {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  width: min(56px, 94%);
+  height: min(25px, 68%);
+  min-height: 16px;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  box-sizing: border-box;
+  padding: 1px 3px;
+  transform: translate(-50%, -50%);
+  font-family: ui-monospace, monospace;
+  font-size: clamp(.46rem, 1.2vw, .76rem);
+  font-weight: 950;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.arena-zone-marker-high {
+  border: 1px solid #ff9a79;
+  border-radius: 3px 8px 3px 8px;
+  background: #4b1d19c9;
+  box-shadow: inset 0 0 0 1px #ff624533, 0 0 8px #fa543c88;
+  color: #fff5ec;
+}
+.arena-zone-marker-low {
+  border: 1px solid #ffe19a;
+  border-radius: 999px;
+  background: #473512d9;
+  box-shadow: inset 0 0 0 1px #ffc54f3d, 0 0 6px #ffc54f66;
+  color: #fff2c5;
+}
+.arena-zone-symbol { font-size: .85em; }
+.arena-zone-marker-high .arena-zone-symbol { color: #ffb58c; }
+.arena-zone-marker-low .arena-zone-symbol { font-size: 1em; }
+
+/* Grasslands: dark scorched soil and branching orange cracks for -10. */
+.live-game-board[data-theme="grasslands"] .arena-zone.kind-water .arena-zone-surface {
+  inset: 5%;
+  border-radius: 38% 62% 53% 47% / 52% 42% 58% 48%;
+  background: radial-gradient(ellipse, #231c19e8 0 19%, #6d3025db 43%, #a83f2d99 62%, transparent 78%);
+  filter: drop-shadow(0 0 5px #ff604980);
+}
+.live-game-board[data-theme="grasslands"] .arena-zone.kind-water .arena-zone-detail {
+  inset: 7%;
+  background:
+    linear-gradient(27deg, transparent 47%, #ffab63 48% 49%, transparent 50%),
+    linear-gradient(151deg, transparent 35%, #fa7452 36% 37%, transparent 38%),
+    linear-gradient(78deg, transparent 60%, #ffc074 61% 62%, transparent 63%),
+    linear-gradient(116deg, transparent 22%, #db563f 23% 24%, transparent 25%);
+  clip-path: polygon(4% 39%, 25% 18%, 43% 27%, 69% 8%, 95% 37%, 79% 67%, 54% 90%, 27% 76%, 8% 58%);
+}
+/* Distinct thorn silhouette and yellow warning marks identify the -5 brambles. */
+.live-game-board[data-theme="grasslands"] .arena-zone.kind-bramble .arena-zone-surface {
+  inset: 5%;
+  background:
+    repeating-conic-gradient(from 8deg at 50% 50%, #ffd878 0 2deg, transparent 3deg 19deg),
+    radial-gradient(ellipse, #443221b0 0 15%, #5f713db0 46%, #314d3548 72%, transparent 80%);
+  filter: drop-shadow(0 0 4px #ffc54f66);
+}
+.live-game-board[data-theme="grasslands"] .arena-zone.kind-bramble .arena-zone-detail {
+  inset: 10%;
+  background: linear-gradient(35deg, transparent 45%, #ffe28b 46% 49%, transparent 50%), linear-gradient(145deg, transparent 48%, #ffd96e 49% 52%, transparent 53%);
+  clip-path: polygon(5% 48%, 22% 29%, 36% 42%, 51% 16%, 66% 40%, 82% 23%, 96% 53%, 78% 75%, 56% 63%, 39% 88%, 20% 68%);
+}
+
+/* Desert Ruins: sand vortex for -10, cactus and thorn warning for -5. */
+.live-game-board[data-theme="desert"] .arena-zone.kind-quicksand .arena-zone-surface {
+  inset: 5%;
+  background: repeating-radial-gradient(ellipse at 50% 55%, transparent 0 7px, #ffd27b9c 8px 9px, transparent 10px 16px), radial-gradient(ellipse, #3a241cce 0 18%, #b94c36b8 44%, #df8a4c80 67%, transparent 80%);
+  filter: drop-shadow(0 0 5px #ec713d70);
+}
+.live-game-board[data-theme="desert"] .arena-zone.kind-quicksand .arena-zone-detail {
+  inset: 10%;
+  background: linear-gradient(25deg, transparent 46%, #ffe2a5 47% 49%, transparent 50%), linear-gradient(148deg, transparent 57%, #f2bb70 58% 60%, transparent 61%);
+  clip-path: ellipse(47% 43% at 50% 50%);
+}
+.live-game-board[data-theme="desert"] .arena-zone.kind-cactus .arena-zone-surface {
+  inset: 5%;
+  background: radial-gradient(ellipse at 50% 54%, #334526 0 7%, transparent 8%), radial-gradient(ellipse at 36% 54%, #62733e 0 7%, transparent 8%), radial-gradient(ellipse at 64% 54%, #62733e 0 7%, transparent 8%), repeating-conic-gradient(from 0deg at 50% 50%, #ffe090 0 2deg, transparent 3deg 24deg), radial-gradient(ellipse, #73552d88 0 24%, #ba813d75 55%, transparent 78%);
+}
+.live-game-board[data-theme="desert"] .arena-zone.kind-cactus .arena-zone-detail {
+  inset: 14%;
+  background: linear-gradient(90deg, transparent 45%, #e4e9a5 46% 54%, transparent 55%), linear-gradient(0deg, transparent 42%, #e4e9a5 43% 50%, transparent 51%), linear-gradient(0deg, transparent 57%, #e4e9a5 58% 65%, transparent 66%);
+  clip-path: polygon(36% 12%, 64% 12%, 64% 38%, 84% 38%, 84% 77%, 62% 77%, 62% 93%, 38% 93%, 38% 66%, 18% 66%, 18% 34%, 36% 34%);
+}
+
+/* Neon Cyber Arena: hard-light arcs for -10 and a broken amber data-floor for -5. */
+.live-game-board[data-theme="neon"] .arena-zone.kind-energy .arena-zone-surface {
+  inset: 0;
+  border-radius: 0;
+  background:
+    repeating-linear-gradient(38deg, transparent 0 21px, #ff694522 21px 23px),
+    repeating-conic-gradient(from 5deg at 50% 50%, transparent 0 16deg, #fff2a8c9 17deg 18deg, transparent 19deg 43deg),
+    radial-gradient(ellipse at 50% 50%, #ffec7580 0 5%, #ff533b80 16%, #a52be14d 48%, transparent 78%);
+  filter: drop-shadow(0 0 7px #ff4b7766);
+}
+.live-game-board[data-theme="neon"] .arena-zone.kind-glitch .arena-zone-surface {
+  inset: 0;
+  clip-path: none;
+  background:
+    repeating-linear-gradient(-34deg, transparent 0 19px, #ffc34f20 19px 21px),
+    linear-gradient(24deg, transparent 0 27%, #e5ae4230 27.5% 29%, transparent 29.5%),
+    linear-gradient(148deg, transparent 0 66%, #e5ae4228 66.5% 68%, transparent 68.5%);
+  filter: none;
+}
+.live-game-board[data-theme="neon"] .arena-zone.kind-glitch .arena-zone-detail {
+  inset: 10%;
+  background: linear-gradient(90deg, transparent 20%, #fff4af 21% 23%, transparent 24% 66%, #fff4af 67% 70%, transparent 71%), linear-gradient(25deg, transparent 46%, #ff704e 47% 50%, transparent 51%);
+  clip-path: polygon(10% 44%, 30% 24%, 48% 41%, 72% 20%, 91% 52%, 69% 73%, 42% 61%, 22% 84%);
+}
+
+/* Frozen Labyrinth: vapor vent and branching thin-ice fractures. */
+.live-game-board[data-theme="frozen"] .arena-zone.kind-frost .arena-zone-surface {
+  inset: 4% 9%;
+  background: radial-gradient(ellipse at 50% 77%, #ffffff 0 5%, #c4fbffe8 14%, #5ddbf0b8 32%, transparent 54%), radial-gradient(ellipse at 50% 38%, #e8ffffff 0 7%, #a5f4ffb0 25%, transparent 63%);
+  filter: drop-shadow(0 0 8px #7feaffb8);
+  animation: frost-vapor 2.6s ease-in-out infinite;
+}
+.live-game-board[data-theme="frozen"] .arena-zone.kind-frost .arena-zone-detail {
+  inset: 57% 18% 10%;
+  border: 1px solid #f5ffffed;
+  border-radius: 5px;
+  background: repeating-linear-gradient(90deg, #edffff 0 2px, #52b6d5 2px 5px);
+  box-shadow: 0 0 8px #78e9ff;
+}
+.live-game-board[data-theme="frozen"] .arena-zone.kind-thin-ice .arena-zone-surface {
+  inset: 5%;
+  background: radial-gradient(ellipse, #e5ffffff55, #9ad9e47a 67%, transparent 78%), repeating-conic-gradient(from 10deg at 50% 50%, transparent 0 18deg, #ffffff86 19deg 20deg, transparent 21deg 42deg);
+  box-shadow: inset 0 0 14px #e6fdff9c;
+}
+.live-game-board[data-theme="frozen"] .arena-zone.kind-thin-ice .arena-zone-detail {
+  inset: 7%;
+  background: linear-gradient(28deg, transparent 46%, #f5ffff 47% 49%, transparent 50%), linear-gradient(145deg, transparent 37%, #efffffe8 38% 40%, transparent 41%), linear-gradient(82deg, transparent 57%, #effffff5 58% 60%, transparent 61%), linear-gradient(12deg, transparent 67%, #dffaffec 68% 70%, transparent 71%);
+}
+
+/* Keep active gameplay objects readable above terrain decoration. */
+.live-coin { z-index: 3; width: 2.5%; height: 4.444444%; border-width: clamp(1px, .25vw, 3px); border-radius: 50%; font-size: 70%; transform: translate(-50%, -50%); animation: coin-hover 1s ease-in-out infinite alternate; }
+.live-player { z-index: 4; width: 3.333333%; height: 5.925926%; border-width: clamp(1px, .4vw, 4px); border-radius: 8px; box-shadow: inset 0 0 0 1px #ffffff55, inset 0 -5px #00000025, 0 2px 5px #06101db0; transition: left 60ms linear, top 60ms linear; }
+.live-player::before { top: 18%; right: 18%; width: 14%; height: 17%; }
+.live-player i { bottom: -24%; left: -8%; width: 28%; height: 16%; box-shadow: 5px 0 #172d2a; }
+.live-player.player-self { box-shadow: 0 0 0 2px #f2fff1, 0 0 12px #a5ffe0a6, inset 0 -5px #00000025; }
+.live-player-name {
+  position: absolute;
+  z-index: 8;
+  bottom: calc(100% + 5px);
+  left: 0;
+  max-width: min(160px, 32vw);
+  overflow: hidden;
+  padding: 4px 7px;
+  border: 1px solid #ffffffa0;
+  border-radius: 4px;
+  background: #101a26f5;
+  box-shadow: 0 2px 8px #06101dd9, 0 0 0 1px #050b13a6;
+  color: #f3f6ed;
+  font-size: clamp(.48rem, 1vw, .64rem);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: .02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.live-game-board .board-hud { z-index: 5; }
+.score-feedback { position: absolute; z-index: 6; color: #fff4ac; font-family: ui-monospace, monospace; font-size: clamp(.8rem, 1.6vw, 1.15rem); font-weight: 1000; text-shadow: 0 2px 4px #07111f, 0 0 7px #07111f; pointer-events: none; transform: translate(-50%, -50%); animation: score-pop 1.4s ease-out forwards; }
+.score-feedback-positive { color: #9dffd4; animation-name: score-coin-pop; }
+.score-feedback-negative { color: #ff9ba2; animation-name: score-penalty-pop; }
+
+@keyframes coin-hover { from { filter: brightness(1); transform: translate(-50%, -50%) scale(.92); } to { filter: brightness(1.22); transform: translate(-50%, -50%) scale(1.08); } }
+@keyframes score-pop { 0% { opacity: 0; translate: 0 8px; } 15% { opacity: 1; } 100% { opacity: 0; translate: 0 -28px; } }
+@keyframes score-coin-pop { 0% { opacity: 0; scale: .7; translate: 0 7px; } 18% { opacity: 1; scale: 1.12; } 100% { opacity: 0; scale: 1; translate: 0 -25px; } }
+@keyframes score-penalty-pop { 0% { opacity: 0; scale: .8; translate: 0 5px; } 18% { opacity: 1; scale: 1.08; } 28% { translate: -2px 0; } 38% { translate: 2px 0; } 100% { opacity: 0; scale: 1; translate: 0 -21px; } }
+@keyframes frost-vapor { 0%, 100% { opacity: .72; filter: drop-shadow(0 0 4px #7feaff80); transform: translateY(2px); } 50% { opacity: 1; filter: drop-shadow(0 0 10px #b5f7ff); transform: translateY(-2px); } }
+
+@media (max-width: 560px) {
+  .live-player-name { max-width: min(130px, 34vw); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .live-coin, .score-feedback, .arena-zone-surface { animation: none !important; transition: none !important; }
+}
+
+
+/* Server-synchronized speed boost collectible and player status. */
+.speed-boost-pickup {
+  --boost-accent: #caff79;
+  position: absolute;
+  z-index: 3;
+  display: grid;
+  width: clamp(30px, 4vw, 40px);
+  aspect-ratio: 1;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--boost-accent), white 34%);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, #fff 0 8%, var(--boost-accent) 11% 18%, #42d8f0c7 40%, #112c48d9 72%);
+  box-shadow: 0 0 9px var(--boost-accent), 0 0 22px color-mix(in srgb, var(--boost-accent), transparent 38%), inset 0 0 9px #ffffffaa;
+  color: #fff7b2;
+  transform: translate(-50%, -50%);
+  animation: speed-boost-pulse 1.4s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+.speed-boost-pickup::before {
+  position: absolute;
+  inset: -5px;
+  border: 1px solid color-mix(in srgb, var(--boost-accent), transparent 36%);
+  border-radius: 50%;
+  content: "";
+  box-shadow: 0 0 8px color-mix(in srgb, var(--boost-accent), transparent 45%);
+}
+.speed-boost-bolt {
+  z-index: 1;
+  font-size: clamp(1.15rem, 2.2vw, 1.55rem);
+  line-height: 1;
+  filter: drop-shadow(0 1px 3px #13202c);
+}
+.speed-boost-pickup[data-theme="desert"] { --boost-accent: #ffd36f; }
+.speed-boost-pickup[data-theme="neon"] { --boost-accent: #73f7ff; }
+.speed-boost-pickup[data-theme="frozen"] { --boost-accent: #d3fbff; }
+
+.live-player.player-boosted {
+  box-shadow: 0 0 0 2px #d7ff87, 0 0 13px #8df5ffb5, inset 0 0 0 1px #ffffff55, inset 0 -5px #00000025;
+}
+.live-player.player-boosted::after {
+  position: absolute;
+  z-index: -1;
+  inset: -5px;
+  border: 2px solid #baff8d;
+  border-radius: 12px;
+  content: "";
+  opacity: .8;
+  pointer-events: none;
+  animation: boosted-player-ring 1.2s ease-in-out infinite alternate;
+}
+.score-chip .boost-status {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 4px;
+  border: 1px solid #a6e9ff9c;
+  border-radius: 4px;
+  background: #16465a;
+  color: #d8fbff;
+  font-size: .62rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.score-chip .boost-status > span {
+  color: #fff2a1;
+  font-size: .72rem;
+}
+
+@keyframes speed-boost-pulse {
+  from { filter: brightness(.92); scale: .96; }
+  to { filter: brightness(1.22); scale: 1.06; }
+}
+@keyframes boosted-player-ring {
+  from { opacity: .48; transform: scale(.94); }
+  to { opacity: .95; transform: scale(1.08); }
+}
+
+@media (max-width: 560px) {
+  .speed-boost-pickup { width: 30px; }
+  .score-chip .boost-status { font-size: .58rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .speed-boost-pickup,
+  .live-player.player-boosted::after { animation: none; }
+}
